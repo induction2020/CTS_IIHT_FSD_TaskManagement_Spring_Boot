@@ -1,6 +1,7 @@
 package com.cognizant.iiht.fsd.casestudy.controller;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -28,32 +29,52 @@ import com.cognizant.iiht.fsd.casestudy.service.UserService;
 @RequestMapping("/users")
 public class UserController {
 
-	/**
-	 * 
-	 * Implementation of Rest Services
-	 * 
-	 */
-	@Autowired
-	UserService userService;
-	
-	//Retrieve All Tasks
-	 @GetMapping
-	 public List<User> listUsers(){
-		 System.out.println("listTasks");
-		 
-		return userService.findAllUsers();
-	 }
+		/**
+		 * 
+		 * Implementation of Rest Services
+		 * 
+		 */
+		@Autowired
+		UserService userService;
+		
+		//Retrieve All Tasks
+		 @GetMapping
+		 public List<UserDto> listUsers(){
+			 System.out.println("listTasks");
+			 UserDto userDto = null;
+			 List<UserDto> userDtoList = new ArrayList<UserDto>();
+			 List<User> userDoList = userService.findAllUsers();
+			 if(userDoList!=null) {
+				for(int i=0;i<userDoList.size(); i++){
+					User user = userDoList.get(i);
+					userDto = new UserDto();
+					userDto.setEmployeeId(user.getEmployeeId());
+					userDto.setProjectId(0);
+
+					userDto.setFirstName(user.getFirstName());
+					userDto.setLastName(user.getLastName());
+					userDto.setUserId(user.getUserId());
+					if(user.getTask()!=null && user.getTask().size()>0) {
+						userDto.setTaskId(user.getTask().get(0).getTaskId());
+					}
+					
+					userDtoList.add(userDto);
+					
+				}
+			 }
+			return userDtoList;
+		 }
 	 
-	 @GetMapping(value ="users123")
-	 public ApiResponse<Task> saveUser(){
-		 
-		  UserDto userDto = new UserDto("Thiru","Madhu","123");
-		  return new ApiResponse<Task>( HttpStatus.OK.value() , "User saved successfully.", userService.addUser(userDto));
-			
-	 }
+		 @GetMapping(value ="users123")
+		 public ApiResponse<Task> saveUser(){
+			 
+			  UserDto userDto = new UserDto();
+			  return new ApiResponse<Task>( HttpStatus.OK.value() , "User saved successfully.", userService.addUser(userDto));
+				
+		 }
 	 
-	//Retrieve All Tasks
-	// Add Task
+		//Retrieve All Tasks
+		// Add Task
 		@PostMapping
 		public ApiResponse<Task> save(@RequestBody UserDto userDto){
 		    return new ApiResponse<Task>( HttpStatus.OK.value() , "User saved successfully.", userService.addUser(userDto));

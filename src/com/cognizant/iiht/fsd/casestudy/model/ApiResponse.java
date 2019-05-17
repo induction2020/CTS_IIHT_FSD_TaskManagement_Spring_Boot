@@ -1,6 +1,8 @@
 package com.cognizant.iiht.fsd.casestudy.model;
 
-public class ApiResponse<T> {
+import java.io.Serializable;
+
+public class ApiResponse<T> implements Serializable{
 
     private int status;
     private String message;

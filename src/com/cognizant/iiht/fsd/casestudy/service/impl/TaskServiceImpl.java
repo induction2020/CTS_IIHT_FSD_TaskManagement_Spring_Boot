@@ -4,15 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.CascadeType;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cognizant.iiht.fsd.casestudy.dao.TaskRepository;
+import com.cognizant.iiht.fsd.casestudy.dao.UserRepository;
 import com.cognizant.iiht.fsd.casestudy.model.ParentTaskDo;
+import com.cognizant.iiht.fsd.casestudy.model.Project;
 import com.cognizant.iiht.fsd.casestudy.model.Task;
 import com.cognizant.iiht.fsd.casestudy.model.TaskDto;
+import com.cognizant.iiht.fsd.casestudy.model.User;
+import com.cognizant.iiht.fsd.casestudy.service.ProjectService;
 import com.cognizant.iiht.fsd.casestudy.service.TaskService;
+import com.cognizant.iiht.fsd.casestudy.service.UserService;
 
 
 @Service
@@ -20,6 +27,12 @@ public class TaskServiceImpl implements TaskService{
 
 	@Autowired
 	TaskRepository taskrepository;
+	
+	@Autowired
+	UserService userService;
+	
+	@Autowired
+	ProjectService projectService;
 	
 	@Override
 	public Task addTask(TaskDto taskDto) {
@@ -30,23 +43,44 @@ public class TaskServiceImpl implements TaskService{
 		taskDo.setEndDate(taskDto.getEndDate());
 		taskDo.setPriority(taskDto.getPriority());
 		
+		if(taskDto.getParentId()!=0 ) {
+			Task taskDoTemp = findById(taskDto.getParentId());
+			
+			ParentTaskDo parentTask = new ParentTaskDo();
+			
+			parentTask.setParentId(taskDoTemp.getTaskId() );
+			parentTask.setParentTask( taskDoTemp.getTask() );
+			
+			taskDo.setParentTaskDo(parentTask);
+			parentTask.setTaskdo(taskDo);
+		}
 		
-		System.out.println("taskDto.getParentName:"+taskDto.getParentName());
+		if(taskDto.getUserId()!=0){
+			User user = userService.findById(taskDto.getUserId());
+			List<Task> taskListTemp =  null;
+			if(user.getTask() ==null) {
+				taskListTemp = new ArrayList<>();
+			}else {
+				taskListTemp = user.getTask() ;
+			}
+			taskListTemp.add(taskDo);
+			
+			user.setTask(taskListTemp);
+			taskDo.setUser(user);
+		}
 		
-		if(taskDto.getParentName()!=null &&
-				 ! taskDto.getParentName().isEmpty() ){
+		if(taskDto.getProjectId() !=0 ) {
+			Project project = projectService.findById( taskDto.getProjectId());
+			List<Task> taskListTemp =  null;
+			if(project.getTask() ==null) {
+				taskListTemp = new ArrayList<>();
+			}else {
+				taskListTemp = project.getTask() ;
+			}
+			taskListTemp.add(taskDo);
 			
-			Task taskDoTemp = findTaskByName(taskDto.getParentName());
-			System.out.println("taskDoTemp:"+taskDoTemp);
-			ParentTaskDo parentTaskDo = new ParentTaskDo( taskDoTemp.getTaskId() , taskDoTemp.getTask() );
-			
-			taskDo.setParentTaskDo(parentTaskDo);
-			parentTaskDo.setTaskdo(taskDo);
-			
-			System.out.println("taskDo111:"+taskDo.getParentTaskDo().getParentId());
-			System.out.println("ParentTaskDo222:"+parentTaskDo.getTaskdo().getParentTaskDo().getParentId());
-			
-			
+			project.setTask( taskListTemp );
+			taskDo.setProject(project);
 		}
 		
 		return taskrepository.save(taskDo);
@@ -86,10 +120,23 @@ public class TaskServiceImpl implements TaskService{
 		return null;
 	}
 
+	
+	
+	@Override
+	public List<Task> findTasksByProject(String projectName) {
+		System.out.println("findTasksByProject");
+		List<Task> listOfTasks = new ArrayList<Task>();
+		taskrepository.findTasksByProject(projectName).iterator().forEachRemaining(listOfTasks :: add);
+		System.out.println("findTasksByProject Ends");
+		return listOfTasks;
+	}
+	
 	@Override
 	public List<Task> findAllTasks() {
+		System.out.println("findAllTasks");
 		List<Task> listOfTasks = new ArrayList<Task>();
 		taskrepository.findAll().iterator().forEachRemaining(listOfTasks :: add);
+		System.out.println("findAllTasks Ends");
 		return listOfTasks;
 	}
 

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cognizant.iiht.fsd.casestudy.model.ApiResponse;
+import com.cognizant.iiht.fsd.casestudy.model.ParentTaskDo;
 import com.cognizant.iiht.fsd.casestudy.model.Task;
 import com.cognizant.iiht.fsd.casestudy.model.TaskDto;
 import com.cognizant.iiht.fsd.casestudy.model.TaskSearch;
@@ -35,29 +36,23 @@ public class TaskController {
 	TaskService taskService;
 	
 	@GetMapping(value ="tasks123")
-	public String getTaskList(){
+	public List<Task> getTaskList(){
 		TaskDto taskDto = new TaskDto();
 		taskDto.setTask("Thiruappathi");
 		taskDto.setStartDate("Date1");
 		taskDto.setEndDate("Date2");
 		taskDto.setPriority(10);
-		taskDto.setParentName("Thiruppathi499");
-		taskService.addTask(taskDto);
+		taskDto.setParentId(1);
+		taskDto.setUserId(1);
+		taskDto.setProjectId(1);
+		
+		//taskService.addTask(taskDto);
 		
 		List<Task> listOfTasks = taskService.findAllTasks();
-		System.out.println("listOfTasks:"+listOfTasks);
-		
-		Task taskDo = taskService.findTask(2);
-		System.out.println("taskDo: "+taskDo);
-		
-		
-		taskDto.setTaskId(3);
-		taskDto.setTask("Thiruppathi Madhu Upd");
-		taskService.updateTask(taskDto);
 		
 		//taskService.deleteTask(4);	
 		
-		return "All Task Listed here";
+		return listOfTasks;
 		
 	}
 	
@@ -74,22 +69,70 @@ public class TaskController {
 	 public List<TaskDto> listTasks(){
 		 System.out.println("listTasks");
 		 List<Task> listOfTasks = taskService.findAllTasks();
+		 //List<Task> listOfTasks = taskService.findTasksByProject();
 		 List<TaskDto> listOfTasksDto = new ArrayList<>(); 
 		 TaskDto taskDto = null;
 		 for(int i=0; i<listOfTasks.size(); i++){
 			 taskDto = new TaskDto();
 			 System.out.println("listOfTasks.get(i): "+ listOfTasks.get(i));
+			
+				
 			 BeanUtils.copyProperties(listOfTasks.get(i), taskDto);
 			 if( listOfTasks.get(i).getParentTaskDo() != null ){
+				 ParentTaskDo parent = listOfTasks.get(i).getParentTaskDo();
+				 System.out.println("parent:"+parent.toString());
 				 taskDto.setParentId( listOfTasks.get(i).getParentTaskDo().getParentId() );
 				 taskDto.setParentName( listOfTasks.get(i).getParentTaskDo().getParentTask());
 				 System.out.println("taskDto: "+taskDto.toString()); 
 			 }
+			 
+			 if( listOfTasks.get(i).getUser() != null ){
+				 long userId = listOfTasks.get(i).getUser().getUserId();
+				 taskDto.setUserId(userId); 
+			 }
+			 
+			 
+			 
 			 listOfTasksDto.add( taskDto );
 		 }
 		return listOfTasksDto;
 	 }
 	 
+	 		//Retrieve All Tasks
+		 @GetMapping("/project/{projectName}")
+		 public List<TaskDto> findTasksByProject(@PathVariable String projectName){
+			 System.out.println("listTasks");
+			 //List<Task> listOfTasks = taskService.findAllTasks();
+			 List<Task> listOfTasks = taskService.findTasksByProject(projectName);
+			 List<TaskDto> listOfTasksDto = new ArrayList<>(); 
+			 TaskDto taskDto = null;
+			 for(int i=0; i<listOfTasks.size(); i++){
+				 taskDto = new TaskDto();
+				 System.out.println("listOfTasks.get(i): "+ listOfTasks.get(i));
+				
+					
+				 BeanUtils.copyProperties(listOfTasks.get(i), taskDto);
+				 if( listOfTasks.get(i).getParentTaskDo() != null ){
+					 ParentTaskDo parent = listOfTasks.get(i).getParentTaskDo();
+					 System.out.println("parent:"+parent.toString());
+					 taskDto.setParentId( listOfTasks.get(i).getParentTaskDo().getParentId() );
+					 taskDto.setParentName( listOfTasks.get(i).getParentTaskDo().getParentTask());
+					 System.out.println("taskDto: "+taskDto.toString()); 
+				 }
+				 
+				 if( listOfTasks.get(i).getUser() != null ){
+					 long userId = listOfTasks.get(i).getUser().getUserId();
+					 taskDto.setUserId(userId); 
+				 }
+				 
+				 
+				 
+				 listOfTasksDto.add( taskDto );
+			 }
+			return listOfTasksDto;
+		 }
+		 
+		 
 	 //Retrieve One Task
 	 @GetMapping("/{id}")
      public TaskDto getTask(@PathVariable int id){
@@ -97,9 +140,9 @@ public class TaskController {
 		 TaskDto taskDto = new TaskDto();
 		 BeanUtils.copyProperties(task, taskDto);
 		 if(task.getParentTaskDo()!=null){
-			 taskDto.setParentName(task.getParentTaskDo().getParentTask());	 
+			 //taskDto.setParentName(task.getParentTaskDo().getParentTask());	 
 		 }else{
-			 taskDto.setParentName("");
+			// taskDto.setParentName("");
 		 }
 		 
         return taskDto;
@@ -107,8 +150,9 @@ public class TaskController {
 	
 	// Add Task
 	@PostMapping
-	public ApiResponse<Task> saveTask(@RequestBody TaskDto taskDto){
-	    return new ApiResponse<Task>( HttpStatus.OK.value() , "Task saved successfully.", taskService.addTask(taskDto));
+	public void saveTask(@RequestBody TaskDto taskDto){
+		taskService.addTask(taskDto);
+	   // return new ApiResponse<Task>( HttpStatus.OK.value() , "Task saved successfully.", taskService.addTask(taskDto));
 	}
 	
 	
@@ -128,10 +172,36 @@ public class TaskController {
 			
 	//Search
 	 @RequestMapping(value="/search", method= RequestMethod.POST)
-	 public List<Task> searchTask(@RequestBody TaskSearch tasksearch){
-		 System.out.println("search method");
-		
-		 return taskService.searchTask(tasksearch.getTask());
+	 public List<TaskDto> searchTask(@RequestBody TaskSearch tasksearch){
+		 System.out.println("listTasks");
+		 //List<Task> listOfTasks = taskService.findAllTasks();
+		 List<Task> listOfTasks = taskService.findTasksByProject(tasksearch.getTask());
+		 List<TaskDto> listOfTasksDto = new ArrayList<>(); 
+		 TaskDto taskDto = null;
+		 for(int i=0; i<listOfTasks.size(); i++){
+			 taskDto = new TaskDto();
+			 System.out.println("listOfTasks.get(i): "+ listOfTasks.get(i));
+			
+				
+			 BeanUtils.copyProperties(listOfTasks.get(i), taskDto);
+			 if( listOfTasks.get(i).getParentTaskDo() != null ){
+				 ParentTaskDo parent = listOfTasks.get(i).getParentTaskDo();
+				 System.out.println("parent:"+parent.toString());
+				 taskDto.setParentId( listOfTasks.get(i).getParentTaskDo().getParentId() );
+				 taskDto.setParentName( listOfTasks.get(i).getParentTaskDo().getParentTask());
+				 System.out.println("taskDto: "+taskDto.toString()); 
+			 }
+			 
+			 if( listOfTasks.get(i).getUser() != null ){
+				 long userId = listOfTasks.get(i).getUser().getUserId();
+				 taskDto.setUserId(userId); 
+			 }
+			 
+			 
+			 
+			 listOfTasksDto.add( taskDto );
+		 }
+		return listOfTasksDto;
 		
 	 }
 

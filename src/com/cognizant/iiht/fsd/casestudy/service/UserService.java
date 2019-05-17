@@ -12,4 +12,5 @@ public interface UserService {
 	public void deleteUser(long userId);
 	public List<User> findUser(String searchkey);
 	public List<User> findAllUsers();
+	public User findById(long userId);
 }

@@ -4,25 +4,28 @@ package com.cognizant.iiht.fsd.casestudy.model;
 public class TaskDto {
 
 	private long taskId;
-	private long parentId;
-	private String parentName;
 	private String task;
 	private String startDate;
 	private String endDate;
 	private int priority;
+	private String parentName;
+	private long parentId;
+	private long projectId;
+	private long userId;
 	
+
+	public String getParentName() {
+		return parentName;
+	}
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
 	
 	public long getTaskId() {
 		return taskId;
 	}
 	public void setTaskId(long taskId) {
 		this.taskId = taskId;
-	}
-	public long getParentId() {
-		return parentId;
-	}
-	public void setParentId(long parentId) {
-		this.parentId = parentId;
 	}
 	public String getTask() {
 		return task;
@@ -48,13 +51,26 @@ public class TaskDto {
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
-	
-	public String getParentName() {
-		return parentName;
+	public long getParentId() {
+		return parentId;
 	}
-	public void setParentName(String parentName) {
-		this.parentName = parentName;
-	}	
+	public void setParentId(long parentId) {
+		this.parentId = parentId;
+	}
+	public long getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(long projectId) {
+		this.projectId = projectId;
+	}
+	public long getUserId() {
+		return userId;
+	}
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	
 	
 	
 	

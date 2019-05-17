@@ -12,4 +12,5 @@ public interface ProjectService {
 	public void deleteProject(long ProjectId);
 	public List<Project> findProject(String searchkey);
 	public List<Project> findAllProjects();
+	public Project findById(long projectId);
 }

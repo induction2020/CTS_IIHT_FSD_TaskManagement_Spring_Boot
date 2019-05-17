@@ -20,6 +20,10 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
 	@Query("SELECT t FROM Task t WHERE task= :name ") 
 	List<Task> searchTask(@Param("name") String name);
 	
+	
+	@Query("SELECT t FROM Task t, Project p WHERE p.project= :projectName and p.projectId = t.project.projectId ") 
+	List<Task> findTasksByProject(@Param("projectName") String projectName);
+	
 	@Query("SELECT t FROM Task t, ParentTaskDo p WHERE p.parentTask= :name and t.taskId = p.task.taskId ") 
 	List<Task> findTaskByParentTask(@Param("name") String name);
 	

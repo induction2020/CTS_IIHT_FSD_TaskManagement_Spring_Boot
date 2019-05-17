@@ -7,20 +7,8 @@ public class UserDto {
 	private String lastName;
 	private String employeeId;
 	private long userId;
-	
-	
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
-	public UserDto() {
-		super();
-	}
-
+	private long projectId;
+	private long taskId;
 	public String getFirstName() {
 		return firstName;
 	}
@@ -39,13 +27,26 @@ public class UserDto {
 	public void setEmployeeId(String employeeId) {
 		this.employeeId = employeeId;
 	}
-	public UserDto(String firstName, String lastName, String employeeId) {
-		super();
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.employeeId = employeeId;
+	public long getUserId() {
+		return userId;
 	}
-
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	public long getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(long projectId) {
+		this.projectId = projectId;
+	}
+	public long getTaskId() {
+		return taskId;
+	}
+	public void setTaskId(long taskId) {
+		this.taskId = taskId;
+	}
+	
+	
 
 
 

@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity(name="ParentTaskDo")
-@Table(name="PARENT_TASK")
+@Table(name="PARENT_TASK_1")
 public class ParentTaskDo implements Serializable{
 
 	public ParentTaskDo(){
@@ -48,8 +48,7 @@ public class ParentTaskDo implements Serializable{
 		this.parentTask = parentTask;
 	}
 	
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "TASK_ID", nullable = false)
+	@OneToOne(mappedBy="parentTaskDo")
 	@JsonIgnore
 	private Task task;
 
@@ -62,5 +61,11 @@ public class ParentTaskDo implements Serializable{
 		this.task = taskdo;
 	}
     
+
+	@Override
+	public String toString() {
+		return "ParentTaskDo [parentId=" + parentId + ", parentTask=" + parentTask + ", task=" + task + "]";
+	}
+	
 	
 }

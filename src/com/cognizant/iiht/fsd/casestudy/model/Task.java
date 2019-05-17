@@ -9,11 +9,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity(name="Task")
-@Table(name="TASK")
+@Table(name="TASK_1")
 public class Task implements Serializable{
 
 	
@@ -34,18 +39,17 @@ public class Task implements Serializable{
 	@Column(name="PRIORITY")
 	private int priority;
 
-	@OneToOne(fetch = FetchType.LAZY,
-            cascade =  CascadeType.ALL,
-            mappedBy = "task")
+	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+	@JoinColumn(name="USER_ID")
+	private User user;
+	
+	@OneToOne(cascade = {CascadeType.ALL})
+	@JoinColumn(name="PARENT_ID")
 	private ParentTaskDo parentTaskDo;
 	
-	public ParentTaskDo getParentTaskDo() {
-		return parentTaskDo;
-	}
-
-	public void setParentTaskDo(ParentTaskDo parentTaskDo) {
-		this.parentTaskDo = parentTaskDo;
-	}
+	@ManyToOne(cascade = CascadeType.ALL , fetch = FetchType.LAZY) // , fetch = FetchType.LAZY
+	@JoinColumn(name="PROJECT_ID")
+	private Project project;
 
 	public long getTaskId() {
 		return taskId;
@@ -54,7 +58,7 @@ public class Task implements Serializable{
 	public void setTaskId(long taskId) {
 		this.taskId = taskId;
 	}
-	
+
 	public String getTask() {
 		return task;
 	}
@@ -86,12 +90,36 @@ public class Task implements Serializable{
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public ParentTaskDo getParentTaskDo() {
+		return parentTaskDo;
+	}
+
+	public void setParentTaskDo(ParentTaskDo parentTaskDo) {
+		this.parentTaskDo = parentTaskDo;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
 	
 	
-	@Override
-	public String toString() {
-		return "Task [taskId=" + taskId + ", task=" + task + ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", priority=" + priority + ", parentTaskDo=" + parentTaskDo + "]";
-	}	
+	
+	
+	
+	
+	
 	
 }
